@@ -3,22 +3,51 @@ color: green;
 font-style: normal;
 font-weight: bold;
 font-size: 15px;
-border-radius: 5px;
+border-radius: 10px;
 }
 #info_btn{
-  color:black;
-  background: yellow;
-}
+  color: #004143;
+background: rgb(255, 209, 83);
+margin-bottom: 5px;}
 #default_btn{
 	color:green;
 	background: white;
 }
 #red_btn{
-	background: red;	   
+	background: tomato;	   
 }
 #ready_btn{
-	background: blue;
+	background: rgb(172, 173, 255);
 }
 #unready_btn{
 	background: white;
 }
+
+#call_btn {
+	background: lightblue;
+}
+
+#first_floor_window {
+	padding: 50px 315px 90px 50px;
+	background-image: url('./bg.png');
+	background-repeat: no-repeat;
+ 	background-size: 100% 100%;
+}
+
+#first_floor_button_box {
+	padding-left: 15px;
+}
+
+#other_floor_window {
+	padding: 10px 315px 10px 50px;
+	background-image: url('./floor_bg.png');
+	background-repeat: no-repeat;
+ 	background-size: 100% 100%;
+	
+
+}
+
+#other_floor_button_box {
+	padding-left: 15px;
+}
+
