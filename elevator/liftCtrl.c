@@ -56,7 +56,7 @@ void sensor_change(int sigNo){
 				sigNo == F4_ARRIVAL ||
 				sigNo == F5_ARRIVAL) {
 		i=sigNo-SIGRTMIN;	
-		printf("Value of i: %d\n", i);		
+		// printf("Value of i: %d\n", i);		
 		if(des==i){
 			send_signal(body_process_id, LIFT_STOP);				
 			send_signal(pid_list[LIFT_MNG], FINISHED);
@@ -136,7 +136,7 @@ void body_process_run(){// đây là hàm thực hiện công việc chính củ
 			case UP:
 				if(pid_list[LIFT_POSITION] < 135) {
 					pid_list[LIFT_POSITION] += VELOCITY;
-					printf("body_process_run: %d\npid_list: %d\n", LIFT_POSITION, pid_list[LIFT_POSITION]);					
+					// printf("body_process_run: %d\npid_list: %d\n", LIFT_POSITION, pid_list[LIFT_POSITION]);					
 				}
 				else action=STAND;
 				break;

@@ -32,7 +32,7 @@ int send_up_signals(int up_signal) {
     }
 
     int arrival_signal = up_signal - 5;
-    printf("    Taking items on floor %d...", current_floor - 1);
+    printf("    Floor %d called from ground. Getting items...", current_floor - 1);
     send_signal(pid_list[previous_floor], FINISHED);
     send_signal(pid_list[current_floor], USING);
     
@@ -54,7 +54,7 @@ int send_call_signals(int call_signal){
     int current_floor = call_signal - SIGRTMIN - 9;
 
     int arrival_signal = call_signal - 10;
-    printf("    Taking items on floor %d...", current_floor - 1);
+    printf("    Floor %d called. Getting items...\n", current_floor - 1);
     send_signal(pid_list[current_floor], FINISHEDUSING);
     
     int floor;
@@ -77,10 +77,10 @@ void broadcast_signals(int signal){
 void send_finish_notification(int sigNo){
 	//printf("Mng get ctr: %d, %d\n",sigNo,current_request-SIGRTMIN);
 
-    if(sigNo >= F2_UP && sigNo <= F5_UP) {
-        send_up_signals(sigNo);
-    } else if (sigNo >= F2_CALL && sigNo <= F5_CALL) {
-        send_call_signals(sigNo);
+    if(current_request >= F2_UP && current_request <= F5_UP) {
+        send_up_signals(current_request);
+    } else if (current_request >= F2_CALL && current_request <= F5_CALL) {
+        send_call_signals(current_request);
     }
 }
 
