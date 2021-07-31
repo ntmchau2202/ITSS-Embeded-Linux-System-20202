@@ -1,4 +1,4 @@
-#include "sigs.h"
+#include "signals.h"
 #include <gtk/gtk.h>
 
 pid_t *pid_list;
@@ -37,25 +37,18 @@ void current_floor_change(int sigNo)
     //     gtk_widget_set_name(current_floor_btn, "unready_btn");
     // }
     // current_floor_number=sigNo-SIGRTMIN-F1_ARRIVAL+1;
-    switch (sigNo - SIGRTMIN)
-    {
-    case F1_ARRIVAL:
+
+
+    if(sigNo == F1_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "1");
-        break;
-    case F2_ARRIVAL:
+    } else if (sigNo == F2_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "2");
-        break;
-    case F3_ARRIVAL:
+    } else if (sigNo == F3_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "3");
-        break;
-    case F4_ARRIVAL:
-        gtk_button_set_label(GTK_BUTTON(current_floor_btn), "4");
-        break;
-    case F5_ARRIVAL:
+    } else if (sigNo == F4_ARRIVAL) {
+         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "4");
+    } else if (sigNo == F5_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "5");
-        break;
-    default:
-        break;
     }
     gtk_widget_set_name(current_floor_btn, "unready_btn");
 }
@@ -80,28 +73,40 @@ static void
 call_func(GtkWidget *widget,
           gpointer data)
 { // Set id cho button de su dung css #red_btn
-    signal(SIGRTMIN + F1_ARRIVAL, SIG_IGN);
-    signal(SIGRTMIN + F2_ARRIVAL, SIG_IGN);
-    signal(SIGRTMIN + F3_ARRIVAL, SIG_IGN);
-    signal(SIGRTMIN + F4_ARRIVAL, SIG_IGN);
-    signal(SIGRTMIN + F5_ARRIVAL, SIG_IGN);
-    signal(SIGRTMIN + FINISHED, SIG_IGN);
-    signal(SIGRTMIN + USING, SIG_IGN);
-    signal(SIGRTMIN + FINISHEDUSING, SIG_IGN);
+
+    register_arrival_signals(SIG_IGN);
+    register_finished_signals(SIG_IGN);
+    register_using_signals(SIG_IGN);
+    register_finished_using_signals(SIG_IGN);
+
+    // signal(SIGRTMIN + F1_ARRIVAL, SIG_IGN);
+    // signal(SIGRTMIN + F2_ARRIVAL, SIG_IGN);
+    // signal(SIGRTMIN + F3_ARRIVAL, SIG_IGN);
+    // signal(SIGRTMIN + F4_ARRIVAL, SIG_IGN);
+    // signal(SIGRTMIN + F5_ARRIVAL, SIG_IGN);
+    // signal(SIGRTMIN + FINISHED, SIG_IGN);
+    // signal(SIGRTMIN + USING, SIG_IGN);
+    // signal(SIGRTMIN + FINISHEDUSING, SIG_IGN);
     if (strcmp(gtk_widget_get_name(call_btn), "red_btn") != 0)
     {
         gtk_widget_set_name(call_btn, "red_btn");
         //g_print("Ban da click call_btn at floor: %d\n",this_floor-SIGRTMIN-10);
-        send_signal(pid_list[LIFT_MNG], (my_floor_number - 1) + SIGRTMIN + F1_CALL);
+        send_signal(pid_list[LIFT_MNG], (my_floor_number - 1) + F1_CALL);
     }
-    signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + FINISHED, finish_move);
-    signal(SIGRTMIN + USING, using);
-    signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
+
+    register_arrival_signals(current_floor_change);
+    register_finished_signals(finish_move);
+    register_using_signals(using);
+    register_finished_using_signals(finish_move_and_using);
+
+    // signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + FINISHED, finish_move);
+    // signal(SIGRTMIN + USING, using);
+    // signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
 }
 static void
 activate(GtkApplication *app,
@@ -176,14 +181,19 @@ int main(int argc, char *argv[])
 {
     GtkApplication *app;
     int status;
-    signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + FINISHED, finish_move);
-    signal(SIGRTMIN + USING, using);
-    signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
+    register_arrival_signals(current_floor_change);
+    register_finished_signals(finish_move);
+    register_using_signals(using);
+    register_finished_using_signals(finish_move_and_using);
+
+    // signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
+    // signal(SIGRTMIN + FINISHED, finish_move);
+    // signal(SIGRTMIN + USING, using);
+    // signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
     if (argc != 2)
     {
         printf("Usage: opx FLOOR_NUMBER\n");
@@ -198,7 +208,7 @@ int main(int argc, char *argv[])
 
         pid_list = update_pid(OPE_PANE2);
         setpgid(pid_list[OPE_PANE2], pid_list[LIFT_MNG]);
-        this_floor = SIGRTMIN + F2_CALL;
+        this_floor = F2_CALL;
         strcpy(window_title, "2nd Floor");
         app = gtk_application_new("org.gtk.tang2", G_APPLICATION_FLAGS_NONE);
         break;
@@ -206,7 +216,7 @@ int main(int argc, char *argv[])
 
         pid_list = update_pid(OPE_PANE3);
         setpgid(pid_list[OPE_PANE3], pid_list[LIFT_MNG]);
-        this_floor = SIGRTMIN + F3_CALL;
+        this_floor = F3_CALL;
         strcpy(window_title, "3rd Floor");
         app = gtk_application_new("org.gtk.tang3", G_APPLICATION_FLAGS_NONE);
         break;
@@ -214,7 +224,7 @@ int main(int argc, char *argv[])
 
         pid_list = update_pid(OPE_PANE4);
         setpgid(pid_list[OPE_PANE4], pid_list[LIFT_MNG]);
-        this_floor = SIGRTMIN + F4_CALL;
+        this_floor = F4_CALL;
         strcpy(window_title, "4th Floor");
         app = gtk_application_new("org.gtk.tang4", G_APPLICATION_FLAGS_NONE);
         break;
@@ -222,7 +232,7 @@ int main(int argc, char *argv[])
 
         pid_list = update_pid(OPE_PANE5);
         setpgid(pid_list[OPE_PANE5], pid_list[LIFT_MNG]);
-        this_floor = SIGRTMIN + F5_CALL;
+        this_floor = F5_CALL;
         strcpy(window_title, "5th Floor");
         app = gtk_application_new("org.gtk.tang5", G_APPLICATION_FLAGS_NONE);
         break;

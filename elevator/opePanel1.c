@@ -1,4 +1,4 @@
-#include "sigs.h"
+#include "signals.h"
 #include <gtk/gtk.h>
 
 pid_t *pid_list;
@@ -25,7 +25,7 @@ func2(GtkWidget *widget,
     if (strcmp(gtk_widget_get_name(button2), "red_btn") != 0)
     {
         gtk_widget_set_name(button2, "red_btn");
-        send_signal(pid_list[LIFT_MNG], SIGRTMIN + F2_UP);
+        send_signal(pid_list[LIFT_MNG], F2_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
@@ -38,7 +38,7 @@ func3(GtkWidget *widget,
     if (strcmp(gtk_widget_get_name(button3), "red_btn") != 0)
     {
         gtk_widget_set_name(button3, "red_btn");
-        send_signal(pid_list[LIFT_MNG], SIGRTMIN + F3_UP);
+        send_signal(pid_list[LIFT_MNG], F3_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
@@ -51,7 +51,7 @@ func4(GtkWidget *widget,
     if (strcmp(gtk_widget_get_name(button4), "red_btn") != 0)
     {
         gtk_widget_set_name(button4, "red_btn");
-        send_signal(pid_list[LIFT_MNG], SIGRTMIN + F4_UP);
+        send_signal(pid_list[LIFT_MNG], F4_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
@@ -64,7 +64,7 @@ func5(GtkWidget *widget,
     if (strcmp(gtk_widget_get_name(button5), "red_btn") != 0)
     {
         gtk_widget_set_name(button5, "red_btn");
-        send_signal(pid_list[LIFT_MNG], SIGRTMIN + F5_UP);
+        send_signal(pid_list[LIFT_MNG], F5_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
@@ -169,32 +169,26 @@ void current_floor_change(int sigNo)
     //printf("1 nhan dc %d\n",sigNo );
     gtk_widget_set_name(current_floor_btn, "unready_btn");
     current_floor_number = sigNo - SIGRTMIN;
-    switch (sigNo - SIGRTMIN)
-    {
-    case F1_ARRIVAL:
+
+    if(sigNo == F1_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "1");
-        break;
-    case F2_ARRIVAL:
-        gtk_button_set_label(GTK_BUTTON(current_floor_btn), "2");
-        break;
-    case F3_ARRIVAL:
+    } else if (sigNo == F2_ARRIVAL) {
+    gtk_button_set_label(GTK_BUTTON(current_floor_btn), "2");
+    } else if (sigNo == F3_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "3");
-        break;
-    case F4_ARRIVAL:
+    } else if (sigNo == F4_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "4");
-        break;
-    case F5_ARRIVAL:
+    } else if (sigNo == F5_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "5");
-        break;
-    default:
-        break;
     }
 }
 void finish_move()
 {
     //printf("Tang 1 get arrives notification\n");
     int tang;
-    if (read(fifoFd, &tang, sizeof(int)) > 0)
+    int res = read(fifoFd, &tang, sizeof(int));
+    printf("finish_move: %d\nres=%d\n", tang, res);
+    if (res > 0)
         switch (tang)
         {
         case 2:
@@ -257,14 +251,20 @@ void finish_move_and_using()
 }
 int main(int argc, char *argv[])
 {
-    signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
-    signal(SIGRTMIN + FINISHED, finish_move);
-    signal(SIGRTMIN + USING, using);
-    signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
+
+    register_arrival_signals(current_floor_change);
+    register_finished_signals(finish_move);
+    register_using_signals(using);
+    register_finished_using_signals(finish_move_and_using);
+
+    // signal(F1_ARRIVAL, current_floor_change);
+    // signal(F2_ARRIVAL, current_floor_change);
+    // signal(F3_ARRIVAL, current_floor_change);
+    // signal(F4_ARRIVAL, current_floor_change);
+    // signal(F5_ARRIVAL, current_floor_change);
+    // signal(FINISHED, finish_move);
+    // signal(USING, using);
+    // signal(FINISHEDUSING, finish_move_and_using);
     pid_list = update_pid(OPE_PANE1);
     setpgid(pid_list[OPE_PANE1], pid_list[LIFT_MNG]);
     printf("ope1_process_id %d\n", pid_list[OPE_PANE1]);
