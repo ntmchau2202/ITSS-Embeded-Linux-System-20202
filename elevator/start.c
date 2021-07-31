@@ -1,4 +1,4 @@
-#include "sigs.h"
+#include "signals.h"
 int main(int argc, char const *argv[])
 {	
 	pid_t pid;	
