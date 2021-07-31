@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "../signals/signals.h"
 #include <gtk/gtk.h>
 
 pid_t *pid_list;
@@ -30,15 +30,6 @@ GdkPixbuf *create_pixbuf(const gchar *filename)
 
 void current_floor_change(int sigNo)
 {
-
-    // current_floor_number=sigNo-SIGRTMIN-F1_ARRIVAL+1;
-    // if(my_floor_number==3) printf("%d va %d\n",current_floor_number,sigNo-SIGRTMIN-F1_ARRIVAL+1 );
-    // if(current_floor_number>sigNo-SIGRTMIN-F1_ARRIVAL+1){
-    //     gtk_widget_set_name(current_floor_btn, "unready_btn");
-    // }
-    // current_floor_number=sigNo-SIGRTMIN-F1_ARRIVAL+1;
-
-
     if(sigNo == F1_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "1");
     } else if (sigNo == F2_ARRIVAL) {
@@ -54,7 +45,6 @@ void current_floor_change(int sigNo)
 }
 void finish_move()
 {
-    //printf("Tang %d get arrives notification\n",my_floor_number);
     gtk_widget_set_name(call_btn, "default_btn");
 }
 void using()
@@ -64,7 +54,6 @@ void using()
 }
 void finish_move_and_using()
 {
-    //printf("Tang %d get arrives notification\n",my_floor_number);
     gtk_button_set_label(GTK_BUTTON(current_floor_btn), "");
     gtk_widget_set_name(current_floor_btn, "ready_btn");
     gtk_widget_set_name(call_btn, "default_btn");
@@ -72,25 +61,15 @@ void finish_move_and_using()
 static void
 call_func(GtkWidget *widget,
           gpointer data)
-{ // Set id cho button de su dung css #red_btn
-
+{ 
     register_arrival_signals(SIG_IGN);
     register_finished_signals(SIG_IGN);
     register_using_signals(SIG_IGN);
     register_finished_using_signals(SIG_IGN);
 
-    // signal(SIGRTMIN + F1_ARRIVAL, SIG_IGN);
-    // signal(SIGRTMIN + F2_ARRIVAL, SIG_IGN);
-    // signal(SIGRTMIN + F3_ARRIVAL, SIG_IGN);
-    // signal(SIGRTMIN + F4_ARRIVAL, SIG_IGN);
-    // signal(SIGRTMIN + F5_ARRIVAL, SIG_IGN);
-    // signal(SIGRTMIN + FINISHED, SIG_IGN);
-    // signal(SIGRTMIN + USING, SIG_IGN);
-    // signal(SIGRTMIN + FINISHEDUSING, SIG_IGN);
     if (strcmp(gtk_widget_get_name(call_btn), "red_btn") != 0)
     {
         gtk_widget_set_name(call_btn, "red_btn");
-        //g_print("Ban da click call_btn at floor: %d\n",this_floor-SIGRTMIN-10);
         send_signal(pid_list[LIFT_MNG], (my_floor_number - 1) + F1_CALL);
     }
 
@@ -99,14 +78,6 @@ call_func(GtkWidget *widget,
     register_using_signals(using);
     register_finished_using_signals(finish_move_and_using);
 
-    // signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + FINISHED, finish_move);
-    // signal(SIGRTMIN + USING, using);
-    // signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
 }
 static void
 activate(GtkApplication *app,
@@ -118,16 +89,15 @@ activate(GtkApplication *app,
     GdkScreen *Screen = gdk_display_get_default_screen(Display);
 
     gtk_style_context_add_provider_for_screen(Screen, GTK_STYLE_PROVIDER(Provider), GTK_STYLE_PROVIDER_PRIORITY_USER);
-    gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(Provider), "stylesheet.css", NULL);
+    gtk_css_provider_load_from_path(GTK_CSS_PROVIDER(Provider), "../resources/stylesheet.css", NULL);
     // End add stylesheet.css ---------------->
 
-    //printf("%d\n",my_floor_number);
     window = gtk_application_window_new(app);
     gtk_window_set_title(GTK_WINDOW(window), window_title);
     gtk_window_set_default_size(GTK_WINDOW(window), 150, 100);
     gtk_widget_set_name(window, "window");
 
-    gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("icon"));
+    gtk_window_set_icon(GTK_WINDOW(window), create_pixbuf("../resources/icon"));
     gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
     //   Add Vbox
     main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -186,14 +156,6 @@ int main(int argc, char *argv[])
     register_using_signals(using);
     register_finished_using_signals(finish_move_and_using);
 
-    // signal(SIGRTMIN + F1_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F2_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F3_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F4_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + F5_ARRIVAL, current_floor_change);
-    // signal(SIGRTMIN + FINISHED, finish_move);
-    // signal(SIGRTMIN + USING, using);
-    // signal(SIGRTMIN + FINISHEDUSING, finish_move_and_using);
     if (argc != 2)
     {
         printf("Usage: opx FLOOR_NUMBER\n");

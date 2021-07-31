@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "../signals/signals.h"
 #define MAX_QUEUE 5
 
 pid_t* pid_list;
@@ -23,22 +23,17 @@ int send_up_signals(int up_signal) {
         return FALSE;
     }
 
-    int current_floor = up_signal - SIGRTMIN - 4;
-    int previous_floor;
-    if (current_floor == OPE_PANE1) {
-        previous_floor = OPE_PANE5;
-    } else {
-        previous_floor = current_floor - 1;
-    }
+    int requested_floor = up_signal - SIGRTMIN - 4;
+    int ground_floor = OPE_PANE1;
 
     int arrival_signal = up_signal - 5;
-    printf("    Floor %d called from ground. Getting items...", current_floor - 1);
-    send_signal(pid_list[previous_floor], FINISHED);
-    send_signal(pid_list[current_floor], USING);
+    printf("    Floor %d reached from ground. Getting items...\n", requested_floor - 1);
+    send_signal(pid_list[ground_floor], FINISHED);
+    send_signal(pid_list[requested_floor], USING);
     
     int floor;
     for (floor = OPE_PANE1; floor <= OPE_PANE5; floor++){
-        if(floor != current_floor && floor != previous_floor) {
+        if(floor != requested_floor && floor != ground_floor) {
             send_signal(pid_list[floor], arrival_signal);
         }
     }
@@ -54,7 +49,7 @@ int send_call_signals(int call_signal){
     int current_floor = call_signal - SIGRTMIN - 9;
 
     int arrival_signal = call_signal - 10;
-    printf("    Floor %d called. Getting items...\n", current_floor - 1);
+    printf("    Floor %d reached. Getting items...\n", current_floor - 1);
     send_signal(pid_list[current_floor], FINISHEDUSING);
     
     int floor;
@@ -75,8 +70,6 @@ void broadcast_signals(int signal){
 }
 
 void send_finish_notification(int sigNo){
-	//printf("Mng get ctr: %d, %d\n",sigNo,current_request-SIGRTMIN);
-
     if(current_request >= F2_UP && current_request <= F5_UP) {
         send_up_signals(current_request);
     } else if (current_request >= F2_CALL && current_request <= F5_CALL) {
@@ -85,18 +78,16 @@ void send_finish_notification(int sigNo){
 }
 
 int send_arrival_signals(int arrive_signal){
-     if (arrive_signal < F2_ARRIVAL || arrive_signal > F5_ARRIVAL) {
+     if (arrive_signal < F1_ARRIVAL || arrive_signal > F5_ARRIVAL) {
         return FALSE;
     }
 
-    int current_floor = arrive_signal - SIGRTMIN;
+    int ground_floor = OPE_PANE1;
 
-    send_signal(pid_list[current_floor], USING);
+    send_signal(pid_list[ground_floor], USING);
     int floor;
-    for(floor = OPE_PANE1; floor <= OPE_PANE5; floor++) {
-        if(floor != current_floor) {
-            send_signal(pid_list[floor], arrive_signal);
-        }
+    for(floor = OPE_PANE2; floor <= OPE_PANE5; floor++) {
+        send_signal(pid_list[floor], arrive_signal);
     }
     
     return TRUE;
@@ -108,37 +99,20 @@ void lift_arrival(int sigNo){
     if(sigNo == FINISHED) {
         send_finish_notification(sigNo);
     } else if (sigNo == F1_ARRIVAL) {
-        // int success = send_arrival_signals(sigNo);
-        // if(success == TRUE) {
-        //     if(read(fifoFd, &sigNumber, sizeof(int)) > 0){
-        //         sleep(WAIT_TIME);		
-        //         lift_is_moving=send_signal(pid_list[LIFT_CTR],sigNumber);
-        //         current_request=sigNumber;
-        //     }
-        //     else{
-        //         lift_is_moving=FALSE;
-        //         printf("Lift stopped!\n");
-        //     }
-        // } else {
-        //     printf("Error when arriving...");
-        // }
-
-        send_signal(pid_list[OPE_PANE1], USING);
-			send_signal(pid_list[OPE_PANE2],sigNo);
-			send_signal(pid_list[OPE_PANE3],sigNo);
-			send_signal(pid_list[OPE_PANE4],sigNo);
-			send_signal(pid_list[OPE_PANE5],sigNo);
-			if(read(fifoFd, &sigNumber, sizeof(int)) > 0){
-				// printf("get queue dc: %d\n",sigNumber );
-				sleep(WAIT_TIME);		//delay luc nhan hang o tang 1 neu trong fifo co request
-				lift_is_moving=send_signal(pid_list[LIFT_CTR],sigNumber);
-				current_request=sigNumber;
-			}
-			else{
-				lift_is_moving=FALSE;
-				printf("Lift stopped!\n");
-			}
-
+        int success = send_arrival_signals(sigNo);
+        if(success == TRUE) {
+            if(read(fifoFd, &sigNumber, sizeof(int)) > 0){
+            sleep(WAIT_TIME);		
+            lift_is_moving = send_signal(pid_list[LIFT_CTR], sigNumber);
+            current_request = sigNumber;
+            }
+            else{
+                lift_is_moving = FALSE;
+                printf("Lift stopped!\n");
+            }
+        } else {
+            printf("An error occurred when elevating...\n");
+        }
     } else if (sigNo == F2_ARRIVAL ||
                 sigNo == F3_ARRIVAL ||
                 sigNo == F4_ARRIVAL ||

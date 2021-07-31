@@ -1,4 +1,4 @@
-#include "signals.h"
+#include "../signals/signals.h"
 
 pid_t *pid_list, sensor_process_id, body_process_id;
 int des=1, current_floor=1;
