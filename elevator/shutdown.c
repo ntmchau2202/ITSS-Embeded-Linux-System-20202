@@ -1,4 +1,4 @@
-#include "sigs.h"
+#include "./signals/signals.h"
 pid_t* pid_list;
 int fifoFd1,fifoFd2;
 
