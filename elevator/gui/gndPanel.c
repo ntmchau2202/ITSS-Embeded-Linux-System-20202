@@ -17,50 +17,50 @@ GtkWidget *current_floor_btn;
 char window_title[10], current_floor[10], current_label[5];
 
 static void
-func2(GtkWidget *widget,
+floor2Handler(GtkWidget *widget,
       gpointer data)
 {
     int tang = 2;
     if (strcmp(gtk_widget_get_name(button2), "red_btn") != 0)
     {
         gtk_widget_set_name(button2, "red_btn");
-        send_signal(pid_list[LIFT_MNG], F2_UP);
+        sendSignal(pid_list[LIFT_MNG], F2_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
 static void
-func3(GtkWidget *widget,
+floor3Handler(GtkWidget *widget,
       gpointer data)
 {
     int tang = 3;
     if (strcmp(gtk_widget_get_name(button3), "red_btn") != 0)
     {
         gtk_widget_set_name(button3, "red_btn");
-        send_signal(pid_list[LIFT_MNG], F3_UP);
+        sendSignal(pid_list[LIFT_MNG], F3_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
 static void
-func4(GtkWidget *widget,
+floor4Handler(GtkWidget *widget,
       gpointer data)
 {
     int tang = 4;
     if (strcmp(gtk_widget_get_name(button4), "red_btn") != 0)
     {
         gtk_widget_set_name(button4, "red_btn");
-        send_signal(pid_list[LIFT_MNG], F4_UP);
+        sendSignal(pid_list[LIFT_MNG], F4_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
 static void
-func5(GtkWidget *widget,
+floor5Handler(GtkWidget *widget,
       gpointer data)
 {
     int tang = 5;
     if (strcmp(gtk_widget_get_name(button5), "red_btn") != 0)
     {
         gtk_widget_set_name(button5, "red_btn");
-        send_signal(pid_list[LIFT_MNG], F5_UP);
+        sendSignal(pid_list[LIFT_MNG], F5_UP);
         write(fifoFd, &tang, sizeof(int));
     }
 }
@@ -123,26 +123,26 @@ activate(GtkApplication *app,
     gtk_container_add(GTK_CONTAINER(button_box), current_floor_btn);
     // button 2
     button2 = gtk_button_new_with_label("II");
-    g_signal_connect(button2, "clicked", G_CALLBACK(func2), NULL);
+    g_signal_connect(button2, "clicked", G_CALLBACK(floor2Handler), NULL);
     gtk_container_add(GTK_CONTAINER(button_box), button2);
     // button3
     button3 = gtk_button_new_with_label("III");
-    g_signal_connect(button3, "clicked", G_CALLBACK(func3), NULL);
+    g_signal_connect(button3, "clicked", G_CALLBACK(floor3Handler), NULL);
     gtk_container_add(GTK_CONTAINER(button_box), button3);
     // button4
     button4 = gtk_button_new_with_label("IV");
 
-    g_signal_connect(button4, "clicked", G_CALLBACK(func4), NULL);
+    g_signal_connect(button4, "clicked", G_CALLBACK(floor4Handler), NULL);
     gtk_container_add(GTK_CONTAINER(button_box), button4);
     // button5
     button5 = gtk_button_new_with_label("V");
-    g_signal_connect(button5, "clicked", G_CALLBACK(func5), NULL);
+    g_signal_connect(button5, "clicked", G_CALLBACK(floor5Handler), NULL);
     gtk_container_add(GTK_CONTAINER(button_box), button5);
 
     // show all widget
     gtk_widget_show_all(window);
 }
-void current_floor_change(int sigNo)
+void currentFloorChange(int sigNo)
 {
     gtk_widget_set_name(current_floor_btn, "unready_btn");
     current_floor_number = sigNo - SIGRTMIN;
@@ -159,7 +159,7 @@ void current_floor_change(int sigNo)
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "5");
     }
 }
-void finish_move()
+void finishMove()
 {
     int tang;
     int res = read(fifoFd, &tang, sizeof(int));
@@ -191,7 +191,7 @@ void using()
     gtk_button_set_label(GTK_BUTTON(current_floor_btn), "");
     gtk_widget_set_name(current_floor_btn, "ready_btn");
 }
-void finish_move_and_using()
+void finishMoveAndUsing()
 {
     //printf("Tang 1 get arrives notification\n");
 
@@ -227,14 +227,14 @@ void finish_move_and_using()
 int main(int argc, char *argv[])
 {
 
-    register_arrival_signals(current_floor_change);
-    register_finished_signals(finish_move);
-    register_using_signals(using);
-    register_finished_using_signals(finish_move_and_using);
+    registerArrivalSignals(currentFloorChange);
+    registerFinishedSignals(finishMove);
+    registerUsingSignals(using);
+    registerFinishedUsingSignals(finishMoveAndUsing);
 
-    pid_list = update_pid(OPE_PANE1);
-    setpgid(pid_list[OPE_PANE1], pid_list[LIFT_MNG]);
-    printf("ope1_process_id %d\n", pid_list[OPE_PANE1]);
+    pid_list = updatePID(FLR_PNL1);
+    setpgid(pid_list[FLR_PNL1], pid_list[LIFT_MNG]);
+    printf("ope1_process_id %d\n", pid_list[FLR_PNL1]);
     
     //Make FIFO file
     remove(OPE1_FIFO_FILE);

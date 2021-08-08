@@ -22,12 +22,12 @@ int main(int argc, char const *argv[])
 	unlink(OPE1_FIFO_FILE);
 	remove(OPE1_FIFO_FILE);
 
-	send_signal(pid_list[LIFT_MNG],SIGINT);
-    send_signal(pid_list[LIFT_CTR],SIGINT);    
-    for(int i=OPE_PANE1;i<=OPE_PANE5;i++){
-        send_signal(pid_list[i],SIGINT);
+	sendSignal(pid_list[LIFT_MNG],SIGINT);
+    sendSignal(pid_list[LIFT_CTR],SIGINT);    
+    for(int i=FLR_PNL1;i<=FLR_PNL5;i++){
+        sendSignal(pid_list[i],SIGINT);
     }    	   
     shmdt(pid_list);
-    release_shm();    		
+    releaseSharedMemory();    		
 	return 0;
 }
