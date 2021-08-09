@@ -56,7 +56,6 @@ void sensorChange(int sigNo){
 				sigNo == F4_ARRIVAL ||
 				sigNo == F5_ARRIVAL) {
 		i=sigNo-SIGRTMIN;	
-		// printf("Value of i: %d\n", i);		
 		if(des==i){
 			sendSignal(body_process_id, LIFT_STOP);				
 			sendSignal(pid_list[LIFT_MNG], FINISHED);
@@ -77,7 +76,7 @@ void sensorRun(){
 	while(1){
 		usleep(CLOCK);
 		
-		if(previous_position ^ pid_list[LIFT_POSITION]){
+		if(previous_position != pid_list[LIFT_POSITION]){
 			switch(pid_list[LIFT_POSITION]){			
 				case 15:			 
 				sendSignal(control_process_id, F1_ARRIVAL);break;
@@ -118,14 +117,14 @@ void quit(){
 	exit(1);
 }
 
-void bodyRun(){// đây là hàm thực hiện công việc chính của liftBody.
+void bodyRun(){
 	int control_process_id=getppid();
     registerLiftSignals(body);
 	
 	pid_list[LIFT_POSITION]=15;
 
 	while(1){		
-		usleep(CLOCK);
+		sleep(1);
 		switch(action){
 			case DOWN:
 				if(pid_list[LIFT_POSITION] > 15) {
@@ -136,7 +135,6 @@ void bodyRun(){// đây là hàm thực hiện công việc chính của liftBod
 			case UP:
 				if(pid_list[LIFT_POSITION] < 135) {
 					pid_list[LIFT_POSITION] += VELOCITY;
-					// printf("bodyRun: %d\npid_list: %d\n", LIFT_POSITION, pid_list[LIFT_POSITION]);					
 				}
 				else action=STAND;
 				break;
@@ -153,7 +151,7 @@ int main(int argc, char const *argv[]){
     registerUpSignals(upRequest);
     registerArrivalSignals(sensorChange);
 
-	pid_list=updatePID(LIFT_CTR); // lưu pid của tiến trình liftCtrl vào share memory.
+	pid_list=updatePID(LIFT_CTR); 
 	printf("control_process_id: %d\n",getpid());	
 	if((sensor_process_id=fork())==0){
 		sensorRun();
