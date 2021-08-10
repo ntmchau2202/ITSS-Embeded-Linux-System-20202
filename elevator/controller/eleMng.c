@@ -102,7 +102,7 @@ void liftArrival(int sigNo){
         int success = sendArrivalSignals(sigNo);
         if(success == TRUE) {
             if(read(fifoFd, &sigNumber, sizeof(int)) > 0){
-            sleep(WAIT_TIME);		
+            sleep(TRANSFER_LUGGAGE_TIME);		
             lift_is_moving = sendSignal(pid_list[LIFT_CTR], sigNumber);
             current_request = sigNumber;
             }

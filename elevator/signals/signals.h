@@ -31,17 +31,18 @@ enum {
 /***** BASIC PARAMETERS *****/
 
 #define CLOCK 300000
+#define TRANSFER_LUGGAGE_TIME 3
+#define V_INTERVAL 1
 #define SHARE_KEY 3579
-#define WAIT_TIME 3
 
 #define TRUE 1
 #define FALSE 0
 #define SUCCESS 1
 #define FAILED 0
 
-#define FIFO_FILE_PATH "requestsqueue"
-#define OPE1_FIFO_FILE "openfifofile"
-#define BUFF_SIZE 256
+#define FIFO_FILE_PATH "signalrequestQ"
+#define GND_FIFO_FILE "gndfifofile"
+#define MAX_SIZE_BUFFER 256
 
 
 /***** BEHAVIOR OF ELEVATOR *****/

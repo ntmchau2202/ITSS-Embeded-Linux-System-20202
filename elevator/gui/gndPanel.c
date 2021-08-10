@@ -237,14 +237,14 @@ int main(int argc, char *argv[])
     printf("ope1_process_id %d\n", pid_list[FLR_PNL1]);
     
     //Make FIFO file
-    remove(OPE1_FIFO_FILE);
-    if (mkfifo(OPE1_FIFO_FILE, 0666) == -1)
+    remove(GND_FIFO_FILE);
+    if (mkfifo(GND_FIFO_FILE, 0666) == -1)
     {
         perror("mkfifo");
         exit(1);
     }
     //Open for writing only
-    if ((fifoFd = open(OPE1_FIFO_FILE, O_RDWR | O_NONBLOCK)) == -1)
+    if ((fifoFd = open(GND_FIFO_FILE, O_RDWR | O_NONBLOCK)) == -1)
     {
         perror("fifofile open");
         exit(1);
@@ -257,6 +257,6 @@ int main(int argc, char *argv[])
     status = g_application_run(G_APPLICATION(app), 0, NULL);
     g_object_unref(app);
     close(fifoFd);
-    unlink(OPE1_FIFO_FILE);
+    unlink(GND_FIFO_FILE);
     return status;
 }

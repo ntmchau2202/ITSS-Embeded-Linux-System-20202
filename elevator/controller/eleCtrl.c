@@ -9,7 +9,7 @@ int sendLiftdownSignals(int destination) {
     }
 
     des = destination;
-    printf("Going to floor %d...\n", des);
+    printf("Going down to floor %d...\n", des);
     sendSignal(body_process_id, LIFT_DOWN);
     return TRUE;
 }
@@ -20,14 +20,12 @@ int sendLiftupSignals(int destination) {
     }
 
     des = destination;
-    printf("Going to floor %d...\n", des);
+    printf("Going up to floor %d...\n", des);
     sendSignal(body_process_id, LIFT_UP);
     return TRUE;
 }
 
 void upRequest(int sigNo){	
-
-
 	if(sigNo == F1_UP || sigNo == F1_CALL) {
 		sendLiftdownSignals(1);
 	} else if (sigNo == F2_UP || sigNo == F2_CALL) {
@@ -59,7 +57,7 @@ void sensorChange(int sigNo){
 		if(des==i){
 			sendSignal(body_process_id, LIFT_STOP);				
 			sendSignal(pid_list[LIFT_MNG], FINISHED);
-			sleep(WAIT_TIME);				
+			sleep(TRANSFER_LUGGAGE_TIME);				
 			des=1;
 			sendSignal(body_process_id, LIFT_DOWN);							
 		}
@@ -124,17 +122,17 @@ void bodyRun(){
 	pid_list[LIFT_POSITION]=15;
 
 	while(1){		
-		sleep(1);
+		sleep(V_INTERVAL);
 		switch(action){
 			case DOWN:
 				if(pid_list[LIFT_POSITION] > 15) {
-					pid_list[LIFT_POSITION] -= VELOCITY;					
+					pid_list[LIFT_POSITION] -= VELOCITY * V_INTERVAL;					
 				}
 				else action=STAND;
 				break;			
 			case UP:
 				if(pid_list[LIFT_POSITION] < 135) {
-					pid_list[LIFT_POSITION] += VELOCITY;
+					pid_list[LIFT_POSITION] += VELOCITY * V_INTERVAL;
 				}
 				else action=STAND;
 				break;
