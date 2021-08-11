@@ -28,7 +28,7 @@ GdkPixbuf *create_pixbuf(const gchar *filename)
     return pixbuf;
 }
 
-void current_floor_change(int sigNo)
+void currentFloorChange(int sigNo)
 {
     if(sigNo == F1_ARRIVAL) {
         gtk_button_set_label(GTK_BUTTON(current_floor_btn), "1");
@@ -43,7 +43,7 @@ void current_floor_change(int sigNo)
     }
     gtk_widget_set_name(current_floor_btn, "unready_btn");
 }
-void finish_move()
+void finishMove()
 {
     gtk_widget_set_name(call_btn, "default_btn");
 }
@@ -52,7 +52,7 @@ void using()
     gtk_button_set_label(GTK_BUTTON(current_floor_btn), "");
     gtk_widget_set_name(current_floor_btn, "ready_btn");
 }
-void finish_move_and_using()
+void finishMoveAndUsing()
 {
     gtk_button_set_label(GTK_BUTTON(current_floor_btn), "");
     gtk_widget_set_name(current_floor_btn, "ready_btn");
@@ -62,21 +62,21 @@ static void
 call_func(GtkWidget *widget,
           gpointer data)
 { 
-    register_arrival_signals(SIG_IGN);
-    register_finished_signals(SIG_IGN);
-    register_using_signals(SIG_IGN);
-    register_finished_using_signals(SIG_IGN);
+    registerArrivalSignals(SIG_IGN);
+    registerFinishedSignals(SIG_IGN);
+    registerUsingSignals(SIG_IGN);
+    registerFinishedUsingSignals(SIG_IGN);
 
     if (strcmp(gtk_widget_get_name(call_btn), "red_btn") != 0)
     {
         gtk_widget_set_name(call_btn, "red_btn");
-        send_signal(pid_list[LIFT_MNG], (my_floor_number - 1) + F1_CALL);
+        sendSignal(pid_list[LIFT_MNG], (my_floor_number - 1) + F1_CALL);
     }
 
-    register_arrival_signals(current_floor_change);
-    register_finished_signals(finish_move);
-    register_using_signals(using);
-    register_finished_using_signals(finish_move_and_using);
+    registerArrivalSignals(currentFloorChange);
+    registerFinishedSignals(finishMove);
+    registerUsingSignals(using);
+    registerFinishedUsingSignals(finishMoveAndUsing);
 
 }
 static void
@@ -151,10 +151,10 @@ int main(int argc, char *argv[])
 {
     GtkApplication *app;
     int status;
-    register_arrival_signals(current_floor_change);
-    register_finished_signals(finish_move);
-    register_using_signals(using);
-    register_finished_using_signals(finish_move_and_using);
+    registerArrivalSignals(currentFloorChange);
+    registerFinishedSignals(finishMove);
+    registerUsingSignals(using);
+    registerFinishedUsingSignals(finishMoveAndUsing);
 
     if (argc != 2)
     {
@@ -168,32 +168,32 @@ int main(int argc, char *argv[])
     {
     case 2:
 
-        pid_list = update_pid(OPE_PANE2);
-        setpgid(pid_list[OPE_PANE2], pid_list[LIFT_MNG]);
+        pid_list = updatePID(FLR_PNL2);
+        setpgid(pid_list[FLR_PNL2], pid_list[LIFT_MNG]);
         this_floor = F2_CALL;
         strcpy(window_title, "2nd Floor");
         app = gtk_application_new("org.gtk.tang2", G_APPLICATION_FLAGS_NONE);
         break;
     case 3:
 
-        pid_list = update_pid(OPE_PANE3);
-        setpgid(pid_list[OPE_PANE3], pid_list[LIFT_MNG]);
+        pid_list = updatePID(FLR_PNL3);
+        setpgid(pid_list[FLR_PNL3], pid_list[LIFT_MNG]);
         this_floor = F3_CALL;
         strcpy(window_title, "3rd Floor");
         app = gtk_application_new("org.gtk.tang3", G_APPLICATION_FLAGS_NONE);
         break;
     case 4:
 
-        pid_list = update_pid(OPE_PANE4);
-        setpgid(pid_list[OPE_PANE4], pid_list[LIFT_MNG]);
+        pid_list = updatePID(FLR_PNL4);
+        setpgid(pid_list[FLR_PNL4], pid_list[LIFT_MNG]);
         this_floor = F4_CALL;
         strcpy(window_title, "4th Floor");
         app = gtk_application_new("org.gtk.tang4", G_APPLICATION_FLAGS_NONE);
         break;
     case 5:
 
-        pid_list = update_pid(OPE_PANE5);
-        setpgid(pid_list[OPE_PANE5], pid_list[LIFT_MNG]);
+        pid_list = updatePID(FLR_PNL5);
+        setpgid(pid_list[FLR_PNL5], pid_list[LIFT_MNG]);
         this_floor = F5_CALL;
         strcpy(window_title, "5th Floor");
         app = gtk_application_new("org.gtk.tang5", G_APPLICATION_FLAGS_NONE);

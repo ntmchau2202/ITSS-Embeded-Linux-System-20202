@@ -20,28 +20,29 @@
 enum {
     LIFT_MNG, // idx = 0
     LIFT_CTR, // 1
-    OPE_PANE1, // 2
-    OPE_PANE2, // 3
-    OPE_PANE3, // 4
-    OPE_PANE4, // 5
-    OPE_PANE5, // 6
+    FLR_PNL1, // 2
+    FLR_PNL2, // 3
+    FLR_PNL3, // 4
+    FLR_PNL4, // 5
+    FLR_PNL5, // 6
     LIFT_POSITION // 7
 };
 
 /***** BASIC PARAMETERS *****/
 
 #define CLOCK 300000
+#define TRANSFER_LUGGAGE_TIME 3
+#define V_INTERVAL 1
 #define SHARE_KEY 3579
-#define WAIT_TIME 3
 
 #define TRUE 1
 #define FALSE 0
 #define SUCCESS 1
 #define FAILED 0
 
-#define FIFO_FILE_PATH "requestsqueue"
-#define OPE1_FIFO_FILE "openfifofile"
-#define BUFF_SIZE 256
+#define FIFO_FILE_PATH "signalrequestQ"
+#define GND_FIFO_FILE "gndfifofile"
+#define MAX_SIZE_BUFFER 256
 
 
 /***** BEHAVIOR OF ELEVATOR *****/
@@ -80,16 +81,16 @@ enum {
 
 /***** SIGNAL REGISTER FUNCTIONS *****/
 
-void register_up_signals(sig_t handler);
-void register_arrival_signals(sig_t handler);
-void register_finished_signals(sig_t handler);
-void register_call_signals(sig_t handler);
-void register_using_signals(sig_t handler);
-void register_lift_signals(sig_t handler);
-void register_finished_using_signals(sig_t handler);
+void registerUpSignals(sig_t handler);
+void registerArrivalSignals(sig_t handler);
+void registerFinishedSignals(sig_t handler);
+void registerCallSignals(sig_t handler);
+void registerUsingSignals(sig_t handler);
+void registerLiftSignals(sig_t handler);
+void registerFinishedUsingSignals(sig_t handler);
 
-pid_t* update_pid(int i);
-void release_shm();
-int send_signal(pid_t pid, int sigNo);
+pid_t* updatePID(int i);
+void releaseSharedMemory();
+int sendSignal(pid_t pid, int sigNo);
 
 #endif
